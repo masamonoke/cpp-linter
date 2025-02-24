@@ -1,7 +1,6 @@
-use crate::check::check;
+use mpe_linter::check::check;
 use std::{env, fs::read_to_string};
 use anyhow::Result;
-use mpe_linter::check;
 
 fn read_lines(filename: &str) -> Result<Vec<String>> {
     let mut result = Vec::new();
