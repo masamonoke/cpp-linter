@@ -1,3 +1,0 @@
-[check_options]
-anonymous_namespace = true
-pointer_prefix = "p"
