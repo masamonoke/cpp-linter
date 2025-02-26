@@ -1,3 +1,4 @@
+use colored::Colorize;
 use regex::Regex;
 
 pub fn find_anonymous_namespace(lines: &Vec<String>) -> Vec<String> {
@@ -6,7 +7,7 @@ pub fn find_anonymous_namespace(lines: &Vec<String>) -> Vec<String> {
     let mut ret = vec![];
     lines.iter().enumerate().for_each(|(line, s)| {
         regex.find_iter(&s).for_each(|matched| {
-            let message = format!("Anonymous namespace at line {}: {}", line + 1, matched.as_str());
+            let message = format!("Anonymous namespace at line {}: {}", line + 1, matched.as_str().bold());
             ret.push(message);
         })
     });

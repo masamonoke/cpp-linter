@@ -9,7 +9,7 @@ pub fn find_std(lines: &Vec<String>, exceptions: Vec<String>) -> Vec<String> {
         regex.captures_iter(s).for_each(|cap| {
             let after_std = &cap[1];
             if !exceptions.contains(&after_std.to_string()) {
-                let message = format!("Found use of {} on line {}", format!("std::{}", after_std).red().bold(), line + 1);
+                let message = format!("Found use of {} at line {}", format!("std::{}", after_std).red().bold(), line + 1);
                 ret.push(message);
             }
         })

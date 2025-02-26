@@ -1,3 +1,4 @@
+use colored::Colorize;
 use regex::Regex;
 
 pub fn find_non_prefixed_pointer(lines: &Vec<String>, prefix: &str) -> Vec<String> {
@@ -14,7 +15,7 @@ pub fn find_non_prefixed_pointer(lines: &Vec<String>, prefix: &str) -> Vec<Strin
         regex
             .find_iter(&s)
             .for_each(|matched| {
-                let message = format!("Pointer at line {} not {}-prefixed: {}", line + 1, prefix, matched.as_str());
+                let message = format!("Pointer at line {} not {}-prefixed: {}", line + 1, prefix, matched.as_str().bold());
                 ret.push(message);
             })
     });

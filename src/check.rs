@@ -2,13 +2,15 @@ use std::fs::read_to_string;
 use serde::Deserialize;
 use strum::{EnumIter, IntoEnumIterator};
 
-use crate::checks::{namespace::find_anonymous_namespace, pointer::find_non_prefixed_pointer, standard_lib::find_std};
+use crate::checks::{auto::find_auto_hint_hide, namespace::find_anonymous_namespace, pointer::find_non_prefixed_pointer, standard_lib::find_std};
 
 #[derive(Deserialize)]
 struct CheckOptions {
     anonymous_namespace: bool,
     pointer_prefix: String,
-    std_lib: Vec<String>
+    std_lib_enabled: bool,
+    std_lib: Vec<String>,
+    auto_hint_hide: bool
 }
 
 #[derive(Deserialize)]
@@ -47,8 +49,12 @@ impl Config {
             checks.push(Check::PointerPrefix { prefix: self.check_options.pointer_prefix })
         }
 
-        if !self.check_options.std_lib.is_empty() {
+        if self.check_options.std_lib_enabled && !self.check_options.std_lib.is_empty() {
             checks.push(Check::StandardLibrary { exceptions: self.check_options.std_lib })
+        }
+
+        if self.check_options.auto_hint_hide {
+            checks.push(Check::AutoHintHide)
         }
 
         return checks;
@@ -68,7 +74,8 @@ impl Config {
 pub enum Check {
     AnonymousNamespace,
     PointerPrefix { prefix: String },
-    StandardLibrary { exceptions: Vec<String> }
+    StandardLibrary { exceptions: Vec<String> },
+    AutoHintHide
 }
 
 pub fn check(lines: Vec<String>) {
@@ -87,7 +94,8 @@ pub fn check(lines: Vec<String>) {
         match check {
             Check::AnonymousNamespace => line_messages.append(&mut find_anonymous_namespace(&lines)),
             Check::PointerPrefix { prefix } => line_messages.append(&mut find_non_prefixed_pointer(&lines, &prefix)),
-            Check::StandardLibrary { exceptions } => line_messages.append(&mut find_std(&lines, exceptions))
+            Check::StandardLibrary { exceptions } => line_messages.append(&mut find_std(&lines, exceptions)),
+            Check::AutoHintHide => line_messages.append(&mut find_auto_hint_hide(&lines))
         }
     });
 
