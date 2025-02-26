@@ -24,7 +24,7 @@ pub fn find_non_prefixed_pointer(lines: &Vec<String>, prefix: &str) -> Vec<Strin
 
 #[cfg(test)]
 mod tests {
-    use crate::pointer::find_non_prefixed_pointer;
+    use crate::checks::pointer::find_non_prefixed_pointer;
 
     #[test]
     fn test_ptr_prefix() {

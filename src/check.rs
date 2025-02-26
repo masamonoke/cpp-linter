@@ -2,12 +2,13 @@ use std::fs::read_to_string;
 use serde::Deserialize;
 use strum::{EnumIter, IntoEnumIterator};
 
-use crate::{namespace::find_anonymous_namespace, pointer::find_non_prefixed_pointer};
+use crate::checks::{namespace::find_anonymous_namespace, pointer::find_non_prefixed_pointer, standard_lib::find_std};
 
 #[derive(Deserialize)]
 struct CheckOptions {
     anonymous_namespace: bool,
-    pointer_prefix: String
+    pointer_prefix: String,
+    std_lib: Vec<String>
 }
 
 #[derive(Deserialize)]
@@ -35,7 +36,7 @@ impl Config {
         return None;
     }
 
-    fn checks(&self) -> Vec<Check> {
+    fn checks(self) -> Vec<Check> {
         let mut checks = vec![];
 
         if self.check_options.anonymous_namespace {
@@ -43,7 +44,11 @@ impl Config {
         }
 
         if !self.check_options.pointer_prefix.is_empty() {
-            checks.push(Check::PointerPrefix { prefix: self.check_options.pointer_prefix.clone() })
+            checks.push(Check::PointerPrefix { prefix: self.check_options.pointer_prefix })
+        }
+
+        if !self.check_options.std_lib.is_empty() {
+            checks.push(Check::StandardLibrary { exceptions: self.check_options.std_lib })
         }
 
         return checks;
@@ -62,7 +67,8 @@ impl Config {
 #[derive(EnumIter)]
 pub enum Check {
     AnonymousNamespace,
-    PointerPrefix { prefix: String }
+    PointerPrefix { prefix: String },
+    StandardLibrary { exceptions: Vec<String> }
 }
 
 pub fn check(lines: Vec<String>) {
@@ -80,7 +86,8 @@ pub fn check(lines: Vec<String>) {
     checks.into_iter().for_each(|check| {
         match check {
             Check::AnonymousNamespace => line_messages.append(&mut find_anonymous_namespace(&lines)),
-            Check::PointerPrefix { prefix } => line_messages.append(&mut find_non_prefixed_pointer(&lines, &prefix))
+            Check::PointerPrefix { prefix } => line_messages.append(&mut find_non_prefixed_pointer(&lines, &prefix)),
+            Check::StandardLibrary { exceptions } => line_messages.append(&mut find_std(&lines, exceptions))
         }
     });
 

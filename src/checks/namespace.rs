@@ -16,7 +16,7 @@ pub fn find_anonymous_namespace(lines: &Vec<String>) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::namespace::find_anonymous_namespace;
+    use crate::checks::namespace::find_anonymous_namespace;
 
     #[test]
     fn test_anonymous_namespace() {
