@@ -2,15 +2,16 @@ use std::fs::read_to_string;
 use serde::Deserialize;
 use strum::{EnumIter, IntoEnumIterator};
 
-use crate::anonymous_namespace::find_anonymous_namespace;
+use crate::{namespace::find_anonymous_namespace, pointer::find_non_prefixed_pointer};
 
 #[derive(Deserialize)]
 struct CheckOptions {
-    anonymous_namespace: bool
+    anonymous_namespace: bool,
+    pointer_prefix: String
 }
 
 #[derive(Deserialize)]
-pub struct Config {
+struct Config {
     check_options: CheckOptions,
 }
 
@@ -41,6 +42,10 @@ impl Config {
             checks.push(Check::AnonymousNamespace);
         }
 
+        if !self.check_options.pointer_prefix.is_empty() {
+            checks.push(Check::PointerPrefix { prefix: self.check_options.pointer_prefix.clone() })
+        }
+
         return checks;
     }
 
@@ -56,7 +61,8 @@ impl Config {
 
 #[derive(EnumIter)]
 pub enum Check {
-    AnonymousNamespace
+    AnonymousNamespace,
+    PointerPrefix { prefix: String }
 }
 
 pub fn check(lines: Vec<String>) {
@@ -70,9 +76,13 @@ pub fn check(lines: Vec<String>) {
         None => checks = Config::all_enabled()
     }
 
+    let mut line_messages = vec![];
     checks.into_iter().for_each(|check| {
         match check {
-            Check::AnonymousNamespace => find_anonymous_namespace(&lines)
+            Check::AnonymousNamespace => line_messages.append(&mut find_anonymous_namespace(&lines)),
+            Check::PointerPrefix { prefix } => line_messages.append(&mut find_non_prefixed_pointer(&lines, &prefix))
         }
-    })
+    });
+
+    line_messages.into_iter().for_each(|message| println!("{}", message));
 }

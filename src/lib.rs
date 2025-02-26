@@ -1,3 +1,4 @@
 pub mod check;
 
-mod anonymous_namespace;
+mod namespace;
+mod pointer;

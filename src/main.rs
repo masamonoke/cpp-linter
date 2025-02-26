@@ -25,6 +25,6 @@ fn main() {
                 Err(e) => println!("{}", e)
             }
         },
-        _ => println!("usage:\nmpe-linter <path/to/cpp/file>")
+        _ => println!("usage:\nlinter <path/to/cpp/file>")
     }
 }
