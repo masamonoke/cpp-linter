@@ -1,3 +1,5 @@
+use std::io::BufRead;
+use std::io;
 use mpe_linter::check::check;
 use std::{env, fs::read_to_string};
 use anyhow::Result;
@@ -15,6 +17,20 @@ fn read_lines(filename: &str) -> Result<Vec<String>> {
 fn main() {
     let args: Vec<String> = env::args().collect();
     match args.len() {
+        1 => {
+            let stdin = io::stdin();
+            let mut lines = vec![];
+            for line in stdin.lock().lines() {
+                match line {
+                    Ok(line) => lines.push(line),
+                    Err(e) => {
+                        println!("{}", e);
+                        return;
+                    }
+                }
+            }
+            check(lines);
+        },
         2 => {
             let filename = &args[1];
             let lines = read_lines(&filename);
