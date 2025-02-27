@@ -1,4 +1,5 @@
-use std::fs::read_to_string;
+use std::pin::Pin;
+use std::{fs::read_to_string, future::Future};
 use serde::Deserialize;
 use strum::{EnumIter, IntoEnumIterator};
 
@@ -78,7 +79,7 @@ pub enum Check {
     AutoHintHide
 }
 
-pub fn check(lines: Vec<String>) {
+pub async fn check(lines: Vec<String>) {
     let config = Config::new();
     let checks;
 
@@ -90,14 +91,20 @@ pub fn check(lines: Vec<String>) {
     }
 
     let mut line_messages = vec![];
+    let mut futures: Vec<Pin<Box<dyn Future<Output = Vec<String>>>>> = Vec::new();
     checks.into_iter().for_each(|check| {
         match check {
-            Check::AnonymousNamespace => line_messages.append(&mut find_anonymous_namespace(&lines)),
-            Check::PointerPrefix { prefix } => line_messages.append(&mut find_non_prefixed_pointer(&lines, &prefix)),
-            Check::StandardLibrary { exceptions } => line_messages.append(&mut find_std(&lines, exceptions)),
-            Check::AutoHintHide => line_messages.append(&mut find_auto_hint_hide(&lines))
+            Check::AnonymousNamespace => futures.push(Box::pin(find_anonymous_namespace(&lines))),
+            Check::PointerPrefix { prefix } => futures.push(Box::pin(find_non_prefixed_pointer(&lines, prefix))),
+            Check::StandardLibrary { exceptions } => futures.push(Box::pin(find_std(&lines, exceptions))),
+            Check::AutoHintHide => futures.push(Box::pin(find_auto_hint_hide(&lines))),
         }
     });
+
+    for f in futures {
+        let mut val = f.await;
+        line_messages.append(&mut val);
+    }
 
     line_messages.into_iter().for_each(|message| println!("{}", message));
 }

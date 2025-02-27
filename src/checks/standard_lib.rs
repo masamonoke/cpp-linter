@@ -1,7 +1,7 @@
 use regex::Regex;
 use colored::Colorize;
 
-pub fn find_std(lines: &Vec<String>, exceptions: Vec<String>) -> Vec<String> {
+pub async fn find_std(lines: &Vec<String>, exceptions: Vec<String>) -> Vec<String> {
     let regex = Regex::new(r"std::(\w+)").unwrap();
 
     let mut ret = vec![];

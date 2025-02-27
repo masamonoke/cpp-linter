@@ -1,7 +1,7 @@
 use colored::Colorize;
 use regex::Regex;
 
-pub fn find_non_prefixed_pointer(lines: &Vec<String>, prefix: &str) -> Vec<String> {
+pub async fn find_non_prefixed_pointer(lines: &Vec<String>, prefix: String) -> Vec<String> {
     let asterisk_ptr_pattern = r"\b\w+\s*\*\s*(?:p[^A-Z\s]\w*|[^p\s]\w*)\s*=\s*[^;]+";
     let prefixed = format!(r"\s*(?:{}[^A-Z\s]\w*|[^p\s]\w*)\s*", prefix);
 
@@ -27,14 +27,14 @@ pub fn find_non_prefixed_pointer(lines: &Vec<String>, prefix: &str) -> Vec<Strin
 mod tests {
     use crate::checks::pointer::find_non_prefixed_pointer;
 
-    #[test]
-    fn test_ptr_prefix() {
+    #[tokio::test]
+    async fn test_ptr_prefix() {
         let test_str = std::fs::read_to_string("tests/pointer_prefix.cpp").unwrap();
         for line in test_str.lines().filter(|s| *s != "") {
             let v = line.split("// ").collect::<Vec<&str>>();
             let test = v[0].to_string();
             let res: usize = v[1].parse().unwrap();
-            assert_eq!(res, find_non_prefixed_pointer(&vec![test.clone()], "p").len(), "{}", test);
+            assert_eq!(res, find_non_prefixed_pointer(&vec![test.clone()], "p".to_owned()).await.len(), "{}", test);
         }
     }
 }

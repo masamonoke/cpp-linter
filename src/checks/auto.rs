@@ -1,7 +1,7 @@
 use colored::Colorize;
 use regex::Regex;
 
-pub fn find_auto_hint_hide(lines: &Vec<String>) -> Vec<String> {
+pub async fn find_auto_hint_hide(lines: &Vec<String>) -> Vec<String> {
     let regex = Regex::new(r"auto\s*(\w+)\s*=\s*(new\s*(\w+))|(.*<(\w+)>)").unwrap();
     let mut ret = vec![];
     for (line_num, line) in lines.into_iter().enumerate() {

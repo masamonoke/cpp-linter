@@ -14,7 +14,8 @@ fn read_lines(filename: &str) -> Result<Vec<String>> {
     Ok(result)
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args: Vec<String> = env::args().collect();
     match args.len() {
         1 => {
@@ -29,14 +30,14 @@ fn main() {
                     }
                 }
             }
-            check(lines);
+            check(lines).await
         },
         2 => {
             let filename = &args[1];
             let lines = read_lines(&filename);
             match lines {
                 Ok(lines) => {
-                    check(lines);
+                    check(lines).await
                 },
                 Err(e) => println!("{}", e)
             }
