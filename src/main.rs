@@ -1,6 +1,6 @@
 use std::io::BufRead;
 use std::io;
-use mpe_linter::check::check;
+use linter::check::check;
 use std::{env, fs::read_to_string};
 use anyhow::Result;
 
